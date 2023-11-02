@@ -203,6 +203,10 @@ fn (ec Ecdh25519) privkey_to_pubkey(prv PrivateKey) !PublicKey {
 	if prv.privkey.len != ec.privkey_size {
 		return error('Wrong privkey len')
 	}
+	// make sure we are on the same curve
+	if prv.curve.curve_id() != ec.curve_id() {
+		return error("operates on different curve")
+	}
 	pubkey := curve25519.x25519(prv.privkey, curve25519.base_point)!
 
 	pubk := PublicKey{
@@ -224,6 +228,10 @@ pub fn (ec Ecdh25519) public_key(pv PrivateKey) !PublicKey {
 pub fn (ec Ecdh25519) shared_secret(local PrivateKey, remote PublicKey) ![]u8 {
 	if local.privkey.len != ec.privkey_size || remote.pubkey.len != ec.pubkey_size {
 		return error('Wrong local len or remote len')
+	}
+	// make sure we are on the same curve
+	if local.curve.curve_id() != ec.curve_id() || remote.curve.curve_id() != local.curve.curve_id() {
+		return error("operates on different curve")
 	}
 	secret := curve25519.x25519(local.privkey, remote.pubkey)!
 	if is_zero(secret) {
