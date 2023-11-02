@@ -1,5 +1,5 @@
 // copyright@ (2023) blackshirt
-// This modules provides Elliptic Curve Diffie-Hellman (ECDHE) used by
+// This modules provides Elliptic Curve Diffie-Hellman (ECDH) used by
 // Key Exchange Protocol, commonly used by cryptography protocol.
 // Currently only Curve25519 based is supported through x25519 function.
 module ecdhe
@@ -117,15 +117,15 @@ pub fn (pv PrivateKey) bytes() ![]u8 {
 	return buf
 }
 
-// equal whether two PrivateKey has equally identical (its not check pubkey part)
+// equal tells whether two PrivateKey has equally identical (its not check pubkey part)
 pub fn (pv PrivateKey) equal(oth PrivateKey) bool {
 	return pv.curve.curve_id() == oth.curve.curve_id() && pv.privkey.len == oth.privkey.len
 		&& subtle.constant_time_compare(pv.privkey, oth.privkey) == 1
 }
 
-// public_key is accessor for `privatekey.pubk` PublicKey part, its does check if matching
-// public key part or initializes PublicKey if not. Initialization is does under `sync.do_with_param`
-// to make sure its  that a function is executed only once.
+// public_key is accessor for `PrivateKey.pubk` PublicKey part, its does by checking it if matching
+// with public key part or initializes PublicKey if not. Initialization is does under `sync.do_with_param`
+// to make sure its that a function is executed only once.
 pub fn (mut prv PrivateKey) public_key() !PublicKey {
 	prv.pubk_once.do_with_param(fn (mut o PrivateKey) {
 		// internal pubkey of privatekey does not initialized to some values.
@@ -147,7 +147,7 @@ pub fn (mut prv PrivateKey) public_key() !PublicKey {
 	return prv.pubk
 }
 
-// Curve25519 ecdh protocol
+// Ecdh25519 is instance of ECDHE Exchanger protocol based on curve25519
 struct Ecdh25519 {
 	privkey_size int = 32
 	pubkey_size  int = 32
@@ -205,7 +205,7 @@ fn (ec Ecdh25519) privkey_to_pubkey(prv PrivateKey) !PublicKey {
 	}
 	// make sure we are on the same curve
 	if prv.curve.curve_id() != ec.curve_id() {
-		return error("operates on different curve")
+		return error('operates on different curve')
 	}
 	pubkey := curve25519.x25519(prv.privkey, curve25519.base_point)!
 
@@ -231,7 +231,7 @@ pub fn (ec Ecdh25519) shared_secret(local PrivateKey, remote PublicKey) ![]u8 {
 	}
 	// make sure we are on the same curve
 	if local.curve.curve_id() != ec.curve_id() || remote.curve.curve_id() != local.curve.curve_id() {
-		return error("operates on different curve")
+		return error('operates on different curve')
 	}
 	secret := curve25519.x25519(local.privkey, remote.pubkey)!
 	if is_zero(secret) {
@@ -245,7 +245,8 @@ pub fn (ec Ecdh25519) shared_secret(local PrivateKey, remote PublicKey) ![]u8 {
 // given PrivateKey.
 pub fn verify(ec Exchanger, privkey PrivateKey, pubkey PublicKey) bool {
 	// check whether given params is on same curve.
-	if privkey.curve.curve_id() != ec.curve_id() || pubkey.curve.curve_id() != ec.curve_id() || privkey.curve.curve_id() != pubkey.curve.curve_id() {
+	if privkey.curve.curve_id() != ec.curve_id() || pubkey.curve.curve_id() != ec.curve_id()
+		|| privkey.curve.curve_id() != pubkey.curve.curve_id() {
 		return false
 	}
 	// get the PublicKey part of given PrivateKey
