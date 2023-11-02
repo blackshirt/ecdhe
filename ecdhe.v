@@ -80,7 +80,7 @@ struct PublicKey {
 // equal tell if two PublicKey is equal, its check if has the same curve and its also check
 // if underlying pubkey bytes has exactly the same length and contents.
 pub fn (pk PublicKey) equal(x PublicKey) bool {
-	return pk.curve == x.curve && pk.pubkey.len == x.pubkey.len
+	return pk.curve.curve_id() == x.curve.curve_id() && pk.pubkey.len == x.pubkey.len
 		&& subtle.constant_time_compare(pk.pubkey, x.pubkey) == 1
 }
 
@@ -119,7 +119,7 @@ pub fn (pv PrivateKey) bytes() ![]u8 {
 
 // equal whether two PrivateKey has equally identical (its not check pubkey part)
 pub fn (pv PrivateKey) equal(oth PrivateKey) bool {
-	return pv.curve == oth.curve && pv.privkey.len == oth.privkey.len
+	return pv.curve.curve_id() == oth.curve.curve_id() && pv.privkey.len == oth.privkey.len
 		&& subtle.constant_time_compare(pv.privkey, oth.privkey) == 1
 }
 
@@ -149,8 +149,8 @@ pub fn (mut prv PrivateKey) public_key() !PublicKey {
 
 // Curve25519 ecdh protocol
 struct Ecdh25519 {
-	privkey_size int = ecdhe.key_size
-	pubkey_size  int = ecdhe.key_size
+	privkey_size int = 32
+	pubkey_size  int = 32
 }
 
 fn (ec Ecdh25519) str() string {

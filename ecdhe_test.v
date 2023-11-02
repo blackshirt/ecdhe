@@ -31,7 +31,12 @@ fn test_x25519_exchanger() ! {
 	client_pubk := kx.public_key(client_prvkey)!
 
 	// test wheter client PublicKey generated from Key
-	assert client_pubk.equal(pubk_sync)
+	// dump(client_pubk)
+	// dump(pubk_sync)
+	assert client_pubk.curve.curve_id() == pubk_sync.curve.curve_id()
+	assert client_pubk.pubkey == pubk_sync.pubkey
+	assert client_pubk.pubkey.len == pubk_sync.pubkey.len
+	assert client_pubk.equal(pubk_sync) == true
 
 	// assert if PublicKey result is expected
 	assert client_pubk.bytes()! == client_pubkey
