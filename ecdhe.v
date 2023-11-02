@@ -67,10 +67,8 @@ pub fn new_exchanger(c Curve) !Exchanger {
 }
 
 // This const for Curve25519 based curve
-pub const (
+const (
 	key_size         = 32
-	private_key_size = key_size
-	public_key_size  = key_size
 )
 
 // PublicKey represent public keys
@@ -150,7 +148,10 @@ pub fn (mut prv PrivateKey) public_key() !PublicKey {
 }
 
 // Curve25519 ecdh protocol
-struct Ecdh25519 {}
+struct Ecdh25519 {
+	privkey_size = key_size
+	pubkey_size = key_size
+}
 
 fn (ec Ecdh25519) str() string {
 	return 'Ecdh25519'
@@ -168,17 +169,17 @@ pub fn (ec Ecdh25519) curve_id() Curve {
 
 // private_key_size returns private key size, in bytes
 pub fn (ec Ecdh25519) private_key_size() int {
-	return private_key_size
+	return ec.privkey_size
 }
 
 // public_key_size returns public key size, in bytes
 pub fn (ec Ecdh25519) public_key_size() int {
-	return public_key_size
+	return ec.pubkey_size
 }
 
 // private_key_from_key generates PrivateKey from seeded key.
 pub fn (ec Ecdh25519) private_key_from_key(key []u8) !PrivateKey {
-	if key.len != private_key_size {
+	if key.len != ec.privkey_size {
 		return error('Wrong key len')
 	}
 	// we dont clamping here
@@ -192,14 +193,14 @@ pub fn (ec Ecdh25519) private_key_from_key(key []u8) !PrivateKey {
 
 // generate_private_key generates PrivateKey with random entropy using `crypto.rand`
 pub fn (ec Ecdh25519) generate_private_key() !PrivateKey {
-	privkey := rand.read(private_key_size)!
+	privkey := rand.read(ec.privkey_size)!
 	privk := ec.private_key_from_key(privkey)!
 	return privk
 }
 
 // privkey_to_pubkey calculates PublicKey part of given PrivateKey
 fn (ec Ecdh25519) privkey_to_pubkey(prv PrivateKey) !PublicKey {
-	if prv.privkey.len != private_key_size {
+	if prv.privkey.len != ec.privkey_size {
 		return error('Wrong privkey len')
 	}
 	pubkey := x25519(prv.privkey, base_point)!
@@ -221,7 +222,7 @@ pub fn (ec Ecdh25519) public_key(pv PrivateKey) !PublicKey {
 // shared_secret computes shared keys between two parties, alice private keys and others public keys.
 // Its commonly used as elliptic curve diffie-hellman (ECDH) key exchange protocol
 pub fn (ec Ecdh25519) shared_secret(local PrivateKey, remote PublicKey) ![]u8 {
-	if local.privkey.len != private_key_size
+	if local.privkey.len != ec.priv_key_size
 		|| remote.pubkey.len != public_key_size {
 		return error('Wrong local len or remote len')
 	}
