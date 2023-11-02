@@ -3,7 +3,7 @@
 // Key Exchange Protocol, commonly used by cryptography protocol.
 // Currently only Curve25519 based is supported through x25519 function.
 module ecdhe
-  
+
 import crypto.hmac
 import encoding.hex
 
@@ -51,7 +51,7 @@ fn test_x25519_exchanger() ! {
 	assert calc_client_shared == calc_server_shared
 }
 
-fn test_x25519_ecdh() ! {
+fn test_x25519_ecdhe() ! {
 	dh := new_x25519_exchanger()
 
 	mut privkey_bob := dh.private_key_from_key([]u8{len: 32})!
@@ -101,7 +101,7 @@ fn test_generate_key() ! {
 fn test_from_rfc_vectors_key() ! {
 	dh := new_x25519_exchanger()
 
-	alice_privbytes := hex.decode(alice_privkey)!
+	alice_privbytes := hex.decode(ecdhe.alice_privkey)!
 
 	ask := dh.private_key_from_key(alice_privbytes)!
 	apk := dh.public_key(ask)!
@@ -109,20 +109,20 @@ fn test_from_rfc_vectors_key() ! {
 	alice_pk := dh.public_key(ask)!
 	assert apk.equal(alice_pk)
 
-	assert alice_pubkey == hex.encode(apk.pubkey[..])
+	assert ecdhe.alice_pubkey == hex.encode(apk.pubkey[..])
 
-	bskhex := hex.decode(bob_privkey)!
+	bskhex := hex.decode(ecdhe.bob_privkey)!
 
 	bsk := dh.private_key_from_key(bskhex)!
 	bpk := dh.public_key(bsk)!
-	assert bob_pubkey == hex.encode(bpk.pubkey[..])
+	assert ecdhe.bob_pubkey == hex.encode(bpk.pubkey[..])
 
 	s1 := dh.shared_secret(ask, bpk)!
 	s2 := dh.shared_secret(bsk, apk)!
 
 	assert hmac.equal(s1, s2) == true
 
-	assert hex.encode(s1) == shared_secret
+	assert hex.encode(s1) == ecdhe.shared_secret
 }
 
 fn test_create_ephemeral_x25519_key_pair() ! {

@@ -9,7 +9,7 @@ import crypto.rand
 import crypto.internal.subtle
 import blackshirt.curve25519
 
-  // Key Exchange Protocol
+// Key Exchange Protocol
 pub interface Exchanger {
 	// curve_id tell the curve id
 	curve_id() Curve
@@ -59,7 +59,7 @@ fn (c Curve) str() string {
 
 // new_exchanger creates new Exchanger for curve c,
 // for this time, only curve25519 is supported
-pub fn new_exchanger(c Curve) !Exchanger {
+pub fn new_exchanger(c Curve) !&Exchanger {
 	match c {
 		.x25519 { return new_x25519_exchanger() }
 		else { return error('unsupported curve') }
@@ -68,7 +68,7 @@ pub fn new_exchanger(c Curve) !Exchanger {
 
 // This const for Curve25519 based curve
 const (
-	key_size         = 32
+	key_size = 32
 )
 
 // PublicKey represent public keys
@@ -149,8 +149,8 @@ pub fn (mut prv PrivateKey) public_key() !PublicKey {
 
 // Curve25519 ecdh protocol
 struct Ecdh25519 {
-	privkey_size = key_size
-	pubkey_size = key_size
+	privkey_size int = ecdhe.key_size
+	pubkey_size  int = ecdhe.key_size
 }
 
 fn (ec Ecdh25519) str() string {
@@ -203,7 +203,7 @@ fn (ec Ecdh25519) privkey_to_pubkey(prv PrivateKey) !PublicKey {
 	if prv.privkey.len != ec.privkey_size {
 		return error('Wrong privkey len')
 	}
-	pubkey := x25519(prv.privkey, base_point)!
+	pubkey := curve25519.x25519(prv.privkey, curve25519.base_point)!
 
 	pubk := PublicKey{
 		curve: ec
@@ -222,11 +222,10 @@ pub fn (ec Ecdh25519) public_key(pv PrivateKey) !PublicKey {
 // shared_secret computes shared keys between two parties, alice private keys and others public keys.
 // Its commonly used as elliptic curve diffie-hellman (ECDH) key exchange protocol
 pub fn (ec Ecdh25519) shared_secret(local PrivateKey, remote PublicKey) ![]u8 {
-	if local.privkey.len != ec.priv_key_size
-		|| remote.pubkey.len != public_key_size {
+	if local.privkey.len != ec.privkey_size || remote.pubkey.len != ec.pubkey_size {
 		return error('Wrong local len or remote len')
 	}
-	secret := x25519(local.privkey, remote.pubkey)!
+	secret := curve25519.x25519(local.privkey, remote.pubkey)!
 	if is_zero(secret) {
 		return error('secret result zeroed')
 	}
