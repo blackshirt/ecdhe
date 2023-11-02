@@ -245,7 +245,7 @@ pub fn (ec Ecdh25519) shared_secret(local PrivateKey, remote PublicKey) ![]u8 {
 // given PrivateKey.
 pub fn verify(ec Exchanger, privkey PrivateKey, pubkey PublicKey) bool {
 	// check whether given params is on same curve.
-	if privkey.curve != ec || pubkey.curve != ec || privkey.curve != pubkey.curve {
+	if privkey.curve.curve_id() != ec.curve_id() || pubkey.curve.curve_id() != ec.curve_id() || privkey.curve.curve_id() != pubkey.curve.curve_id() {
 		return false
 	}
 	// get the PublicKey part of given PrivateKey
