@@ -77,6 +77,19 @@ pub struct PublicKey {
 	pubkey []u8
 }
 
+// pubkey_with_key constructs PublicKey with provided pubkey bytes.
+pub fn pubkey_with_key(key []u8, c Curve) !PublicKey {
+	exch := new_exchanger(c)!
+	if key.len != exch.public_key_size() {
+		return error('provided key.len does not match with .public_key_size')
+	}
+	pubkey := PublicKey{
+		curve: exch
+		pubkey: key
+	}
+	return pubkey
+}
+			
 // equal tell if two PublicKey is equal, its check if has the same curve and its also check
 // if underlying pubkey bytes has exactly the same length and contents.
 pub fn (pk PublicKey) equal(x PublicKey) bool {
