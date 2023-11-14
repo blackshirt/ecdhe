@@ -72,7 +72,7 @@ const (
 )
 
 // PublicKey represent public keys
-struct PublicKey {
+pub struct PublicKey {
 	curve  Exchanger
 	pubkey []u8
 }
@@ -98,7 +98,7 @@ pub fn (pk PublicKey) bytes() ![]u8 {
 // its not recommended to access it directly, but call `.public_key()` instead to get PublicKey part.
 // and, its not made as a public, if you wanto to have to create it, you should create its from Exchanger instance,
 // and then call `.private_key_from_key` or `generate_private_key` instead.
-struct PrivateKey {
+pub struct PrivateKey {
 	curve   Exchanger
 	privkey []u8
 mut:
