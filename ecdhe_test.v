@@ -26,7 +26,9 @@ fn test_x25519_exchanger() ! {
 	server_prvkey := kx.private_key_from_key(server_privkey)!
 	// PublicKey part of the private key
 	server_pubk := kx.public_key(server_prvkey)!
-
+	srv_pk := pubkey_with_key(server_pubkey, Curve.x25519)!
+	assert server_pubk == srv_pk 
+	
 	// PublicKey part of the private key
 	client_pubk := kx.public_key(client_prvkey)!
 
