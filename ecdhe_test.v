@@ -27,8 +27,9 @@ fn test_x25519_exchanger() ! {
 	// PublicKey part of the private key
 	server_pubk := kx.public_key(server_prvkey)!
 	srv_pk := pubkey_with_key(server_pubkey, Curve.x25519)!
-	assert server_pubk == srv_pk 
-	
+	assert srv_pk.curve.curve_id() == server_pubk.curve.curve_id()
+        assert server_pubk.pubkey == srv_pk.pubkey
+
 	// PublicKey part of the private key
 	client_pubk := kx.public_key(client_prvkey)!
 
@@ -46,7 +47,11 @@ fn test_x25519_exchanger() ! {
 	// compute shared_secret between client private key and server public key
 	calc_client_shared := kx.shared_secret(client_prvkey, server_pubk)!
 	assert client_shared_secret == calc_client_shared
+	shared_sec := kx.shared_secret(client_prvkey, srv_pk)!
+        assert client_shared_secret == shared_sec
+        assert shared_sec == calc_client_shared
 
+		
 	// assert if PublicKey result is expected
 	assert server_pubk.bytes()! == server_pubkey
 
