@@ -29,7 +29,7 @@ pub interface Exchanger {
 }
 
 	
-pub (ex Exchanger) str() string {
+pub fn (ex Exchanger) str() string {
 	curve := ex.curve_id()
 	return curve_str()
 }
