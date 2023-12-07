@@ -31,7 +31,7 @@ pub interface Exchanger {
 	
 pub fn (ex Exchanger) str() string {
 	curve := ex.curve_id()
-	return curve_str()
+	return curve.str()
 }
 	
 // Basically, Curve is a TLS 1.3 NamedGroup.
