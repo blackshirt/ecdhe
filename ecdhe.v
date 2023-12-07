@@ -9,6 +9,7 @@ import crypto.rand
 import crypto.internal.subtle
 import blackshirt.curve25519
 
+
 // Key Exchange Protocol
 pub interface Exchanger {
 	// curve_id tell the curve id
@@ -27,6 +28,12 @@ pub interface Exchanger {
 	shared_secret(local PrivateKey, remote PublicKey) ![]u8
 }
 
+	
+pub (ex Exchanger) str() string {
+	curve := ex.curve_id()
+	return curve_str()
+}
+	
 // Basically, Curve is a TLS 1.3 NamedGroup.
 // its defined here for simplicity.
 pub enum Curve {
